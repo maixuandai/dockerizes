@@ -1,0 +1,62 @@
+version: '3.1'
+services:
+  redmine:
+    image: redmine
+    container_name: redmine
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      REDMINE_DB_MYSQL: db
+      REDMINE_DB_PASSWORD: Root@123
+      REDMINE_DB_DATABASE: dev_db
+    volumes:
+      - ./redmine_agile:/redmine_agile
+    networks:
+      mxd-net:
+        ipv4_address: 172.18.0.2
+  db:
+    image: mysql:5.7
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+        # Pass volume named mysql-data to mysql container
+      - mysql-data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Root@123
+      MYSQL_DATABASE: dev_db
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: Dev@123
+    networks:
+      mxd-net:
+        ipv4_address: 172.18.0.3
+  nginx-proxy:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/logs:/var/log/nginx
+      - ./cert/etc/letsencrypt/live/redmine.mxdai.co/fullchain.pem:/etc/letsencrypt/live/redmine.mxdai.co/fullchain.pem
+      - ./cert/etc/letsencrypt/live/redmine.mxdai.co/privkey.pem:/etc/letsencrypt/live/redmine.mxdai.co/privkey.pem
+    networks:
+      mxd-net:
+        ipv4_address: 172.18.0.4  
+# Add volumes definition to create volume mysql-data referenced above
+volumes:
+  mysql-data:
+    driver: "local"
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "/app/mysql/data"
+networks:
+  mxd-net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.18.0.0/16
