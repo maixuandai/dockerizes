@@ -1,0 +1,12 @@
+version: "3.3"
+services:
+ stg.hottab.co-test:
+    image: node:8.11.3
+    container_name: stg.hottab.co-srv-test
+    working_dir: /usr/src/app
+    command: npm run server
+    ports: 
+      - "8080:8080" 
+    volumes:
+      - ./www/stg.hottab.co/consumer-react:/usr/src/app
+    restart: always

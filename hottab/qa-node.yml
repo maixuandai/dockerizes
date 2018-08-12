@@ -1,0 +1,27 @@
+version: "3.3"
+services:
+  node-srv:
+    image: node:8.11.3
+    container_name: consumer.hottab.us-srv
+    ports:
+      - "8080:8080"
+    working_dir: /usr/src/app
+    command: npm run server
+    volumes:
+      - ./www/consumer-react:/usr/src/app
+    restart: always
+  nginx:
+    image: web:1.0
+    container_name: consumer.hottab.us
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - node-srv
+    volumes:
+      - ./nginx/conf.d/consumer.hottab.us.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/log:/var/log/nginx
+      - ./www/consumer-react/build:/usr/share/nginx/html
+      - ./cert/etc/letsencrypt/live/consumer.hottab.us/fullchain.pem:/etc/letsencrypt/live/consumer.hottab.us/fullchain.pem
+      - ./cert/etc/letsencrypt/live/consumer.hottab.us/privkey.pem:/etc/letsencrypt/live/consumer.hottab.us/privkey.pem
+

@@ -1,0 +1,21 @@
+version: "3.3"
+services:
+  stg:
+    image: nginx:latest
+    container_name: stg.hottab.co
+    build: .
+    ports:
+      - "8082:80"
+      - "8445:443"
+    volumes:
+      - ./www/stg.hottab.co:/usr/share/nginx/html
+    networks:
+      - hottab-net
+networks:
+  hottab-net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.18.0.0/16
+         gateway: 172.18.0.1
+    

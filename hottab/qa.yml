@@ -1,0 +1,16 @@
+version: "3.3"
+services:
+  qa:
+    image: nginx:latest
+    container_name: consumer.hottab.us
+    ports:
+      - "8081:80"
+      - "8444:443"
+    volumes:
+      - ./www/consumer.hottab.us:/usr/share/nginx/html
+    networks:
+      - hottab-net
+
+networks:
+  hottab-net:
+    driver: bridge

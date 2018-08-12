@@ -1,0 +1,127 @@
+version: "3.3"
+services:
+  db:
+    image: postgres
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_USER: dev
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      hottab-net:
+        ipv4_address: 172.18.0.2
+  db-stg:
+    image: postgres
+    container_name: postgres_db_stg
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_USER: dev
+    volumes:
+      - postgres-data-stg:/var/lib/postgresql/data
+    networks:
+      hottab-net:
+        ipv4_address: 172.18.0.9
+  jhipster:
+    image: jhipster/jhipster
+    container_name: jhipster
+    links:
+      - db
+    ports:
+      - "8080:8080"
+      - "3001:3001"
+      - "9000:9000"
+    volumes:
+      - jhipster-src:/home/jhipster/app
+    networks:
+      hottab-net:
+        ipv4_address: 172.18.0.3
+    extra_hosts:
+      - "local:172.18.0.3"
+  stg.hottab.co:
+    image: node:8.11.3
+    container_name: stg.hottab.co-srv
+    working_dir: /usr/src/app
+    command: npm run server
+    volumes:
+      - ./www/stg.hottab.co/consumer-react:/usr/src/app
+    restart: always
+    networks:
+      hottab-net:
+        ipv4_address: 172.18.0.5
+  consumer.hottab.us:
+    image: node:8.11.3
+    container_name: consumer.hottab.us-srv
+    working_dir: /usr/src/app
+    command: npm run server
+    volumes:
+      - ./www/consumer.hottab.us/consumer-react:/usr/src/app
+    restart: always
+    networks:
+      hottab-net:
+        ipv4_address: 172.18.0.8
+  jp:
+    image: nginx:latest
+    container_name: stg-jp-dashboard.hottab.us
+    build: .
+    ports:
+      - "8083:80"
+      - "8446:443"
+    volumes:
+      - ./www/stg-jp-dashboard.hottab.us:/usr/share/nginx/html
+    networks:
+      hottab-net:
+        ipv4_address: 172.18.0.4
+  nginx-proxy:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/logs:/var/log/nginx
+      - ./cert/etc/letsencrypt/live/qa.mxdai.co/fullchain.pem:/etc/letsencrypt/live/qa.mxdai.co/fullchain.pem
+      - ./cert/etc/letsencrypt/live/qa.mxdai.co/privkey.pem:/etc/letsencrypt/live/qa.mxdai.co/privkey.pem
+      - ./cert/etc/letsencrypt/live/stg.hottab.co/fullchain.pem:/etc/letsencrypt/live/stg.hottab.co/fullchain.pem
+      - ./cert/etc/letsencrypt/live/stg.hottab.co/privkey.pem:/etc/letsencrypt/live/stg.hottab.co/privkey.pem
+      - ./cert/etc/letsencrypt/live/consumer.hottab.us/fullchain.pem:/etc/letsencrypt/live/consumer.hottab.us/fullchain.pem
+      - ./cert/etc/letsencrypt/live/consumer.hottab.us/privkey.pem:/etc/letsencrypt/live/consumer.hottab.us/privkey.pem
+      - ./cert/etc/letsencrypt/live/consumer.hottab.co/fullchain.pem:/etc/letsencrypt/live/consumer.hottab.co/fullchain.pem
+      - ./cert/etc/letsencrypt/live/consumer.hottab.co/privkey.pem:/etc/letsencrypt/live/consumer.hottab.co/privkey.pem
+      - ./cert/etc/letsencrypt/live/stg-jp-dashboard.hottab.us/fullchain.pem:/etc/letsencrypt/live/stg-jp-dashboard.hottab.us/fullchain.pem
+      - ./cert/etc/letsencrypt/live/stg-jp-dashboard.hottab.us/privkey.pem:/etc/letsencrypt/live/stg-jp-dashboard.hottab.us/privkey.pem
+    networks:
+      hottab-net:
+        ipv4_address: 172.18.0.7
+# Add volumes definition to create volume mysql-data referenced above
+volumes:
+  jhipster-src:
+    driver: "local"
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "/app/jhipster/Nomido"
+  postgres-data:
+    driver: "local"
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "/app/data" 
+  postgres-data-stg:
+    driver: "local"
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "/app/jhipster/data" 
+networks:
+  hottab-net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.18.0.0/16
+
