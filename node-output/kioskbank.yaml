@@ -1,0 +1,189 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "Kioskbank API",
+    "description" : "This is a Kioskbank API",
+    "contact" : {
+      "email" : "daimx@baca-bank.vn"
+    },
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "https://virtserver.swaggerhub.com/dai5/kioskbank/1.0.0",
+    "description" : "SwaggerHub API Auto Mocking"
+  } ],
+  "tags" : [ {
+    "name" : "Card",
+    "description" : "Operations available to card product"
+  }, {
+    "name" : "Corebanking",
+    "description" : "Operations available to corebank"
+  }, {
+    "name" : "eBanking",
+    "description" : "Operations available to eBanking"
+  }, {
+    "name" : "SMS",
+    "description" : "Operations available to SMS"
+  }, {
+    "name" : "OTP",
+    "description" : "Operations available to OTP"
+  }, {
+    "name" : "ReferenceData",
+    "description" : "Operations available to SMS"
+  } ],
+  "paths" : {
+    "/registerSMS" : {
+      "post" : {
+        "tags" : [ "SMS" ],
+        "summary" : "đăng ký SMS banking",
+        "responses" : {
+          "200" : {
+            "description" : "Thanh công",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sendSMS" : {
+      "post" : {
+        "tags" : [ "SMS" ],
+        "summary" : "gửi SMS banking",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/body"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Thanh công",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/card" : {
+      "get" : {
+        "tags" : [ "card" ],
+        "summary" : "get card product list",
+        "description" : "List all card products to present on STM\n",
+        "parameters" : [ {
+          "name" : "stmId",
+          "in" : "query",
+          "description" : "Identification number of STM machine",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "search results matching criteria",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CardProductListRes"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "BaseResponse" : {
+        "type" : "object",
+        "properties" : {
+          "errorCode" : {
+            "type" : "string",
+            "description" : "00 - success, 99 - failed",
+            "example" : "00"
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "success"
+          }
+        }
+      },
+      "CardProductListRes" : {
+        "type" : "object",
+        "properties" : {
+          "errorCode" : {
+            "type" : "string",
+            "description" : "00 - success, 99 - failed",
+            "example" : "00"
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "success"
+          },
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CardProductItem"
+            }
+          }
+        }
+      },
+      "CardProductItem" : {
+        "type" : "object",
+        "properties" : {
+          "productName" : {
+            "type" : "string",
+            "example" : "Thẻ đồng thương hiệu BAC A BANK - TH true mart"
+          },
+          "productCode" : {
+            "type" : "string",
+            "example" : "XXX"
+          },
+          "image" : {
+            "type" : "string",
+            "example" : "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEBLAEsAAD"
+          },
+          "supportFastIssuse" : {
+            "type" : "boolean",
+            "example" : true
+          }
+        }
+      },
+      "body" : {
+        "type" : "object",
+        "properties" : {
+          "number" : {
+            "type" : "string",
+            "example" : "988267149"
+          },
+          "message" : {
+            "type" : "string",
+            "example" : "Mã PIN của bạn là 1234"
+          }
+        }
+      }
+    }
+  }
+}
